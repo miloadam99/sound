@@ -1,3 +1,5 @@
+import { WebAudioInstance } from './webaudio/WebAudioInstance';
+
 interface FrequencyBand {
     low: number;
     ctr: number;
@@ -63,9 +65,9 @@ class FFT
     highMid = [2600, 5200];
     treble = [5200, 14000];
 
-    constructor(smoothing : number, bins : number, analyser: AnalyserNode)
+    constructor(smoothing : number, bins : number, source: WebAudioInstance)
     {
-        this.analyzerNode = analyser;
+        this.analyzerNode = source._media.context.analyser;
 
         this.smoothing = smoothing;
         this.bins = bins || 1024;
@@ -159,7 +161,7 @@ class FFT
      *                              Lowest energy (silence) = 0, highest
      *                              possible is 255.
      */
-    get analyze() : number[]
+    analyze() : number[]
     {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         this.freqToInt();

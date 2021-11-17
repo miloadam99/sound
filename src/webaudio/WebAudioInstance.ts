@@ -25,7 +25,7 @@ class WebAudioInstance extends EventEmitter implements IMediaInstance
      * The source Sound.
      * @type {webaudio.WebAudioMedia}
      */
-    private _media: WebAudioMedia;
+    public _media: WebAudioMedia;
 
     /**
      * true if paused.
