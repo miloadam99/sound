@@ -67,7 +67,7 @@ class FFT
 
     constructor(smoothing : number, bins : number, source: WebAudioInstance)
     {
-        this.analyzerNode = source._source.context.createAnalyser();
+        this.analyzerNode = source._media.context.audioContext.createAnalyser();
 
         this.smoothing = smoothing;
         this.bins = bins || 1024;
