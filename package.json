@@ -1,7 +1,7 @@
 {
   "name": "@miloadam99/sound",
   "version": "6.0.0",
-  "description": "WebAudio API playback library with filters",
+  "description": "WebAudio API playback library with filters & FFT (Amplitude / Waveform) Analysis",
   "main": "dist/pixi-sound.cjs.js",
   "module": "dist/pixi-sound.esm.js",
   "types": "dist/pixi-sound.d.ts",
