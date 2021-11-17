@@ -103,7 +103,7 @@ class WebAudioInstance extends EventEmitter implements IMediaInstance
      * Audio buffer source clone from Sound object.
      * @type {AudioBufferSourceNode}
      */
-    private _source: AudioBufferSourceNode;
+    public _source: AudioBufferSourceNode;
 
     constructor(media: WebAudioMedia)
     {

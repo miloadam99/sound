@@ -45,6 +45,8 @@ interface FrequencyBand {
  *  @example
  */
 import { isSafari } from './utils/supported';
+import { IMediaInstance } from './interfaces';
+import { HTMLAudioInstance } from './htmlaudio/HTMLAudioInstance';
 
 export function map(num: number, inMin: number, inMax: number, outMin: number, outMax: number): number
 {
@@ -65,9 +67,12 @@ class FFT
     highMid = [2600, 5200];
     treble = [5200, 14000];
 
-    constructor(smoothing : number, bins : number, source: WebAudioInstance)
+    constructor(smoothing : number, bins : number, source: IMediaInstance | WebAudioInstance | HTMLAudioInstance)
     {
-        this.analyzerNode = source._media.context.analyser;
+        if (source instanceof WebAudioInstance)
+        {
+            this.analyzerNode = source._source.context.createAnalyser();
+        }
 
         this.smoothing = smoothing;
         this.bins = bins || 1024;
