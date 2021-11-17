@@ -32,7 +32,7 @@ interface FrequencyBand {
  *  2048/44100 seconds long.</p>
  *
  *
- *  @class FFT
+ *  @class
  *  @constructor
  *  @param {Number} [smoothing]   Smooth results of Frequency Spectrum.
  *                                0.0 < smoothing < 1.0.
@@ -118,14 +118,14 @@ class FFT
         if (!isSafari()) // getFloatFrequencyData doesnt work in Safari as of 5/2015
         {
             // eslint-disable-next-line @typescript-eslint/no-use-before-define
-            timeToFloat(this);
+            this.timeToFloat();
             this.analyzerNode.getFloatTimeDomainData(this.timeDomain as Float32Array);
 
             return this.timeDomain as Uint8Array;
         }
 
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        timeToInt(this);
+        this.timeToInt();
         this.analyzerNode.getByteTimeDomainData(this.timeDomain as Uint8Array);
         for (let j = 0; j < this.timeDomain.length; j++)
         {
@@ -162,7 +162,7 @@ class FFT
     get analyze() : number[]
     {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        freqToInt(this);
+        this.freqToInt();
         this.analyzerNode.getByteFrequencyData(this.freqDomain as Uint8Array);
         const normalArray = Array.from(this.freqDomain);
 
@@ -194,7 +194,7 @@ class FFT
     get analyzeFloat32() : Float32Array
     {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        freqToFloat(this);
+        this.freqToFloat();
         this.analyzerNode.getFloatFrequencyData(this.freqDomain as Float32Array);
 
         return this.freqDomain as Float32Array;
@@ -531,38 +531,40 @@ class FFT
 
         return octaveBands;
     }
+
+    // helper methods to convert type from float (dB) to int (0-255)
+    freqToFloat() : void
+    {
+        if (this.freqDomain instanceof Float32Array)
+        {
+            this.freqDomain = new Float32Array(this.analyzerNode.frequencyBinCount);
+        }
+    }
+
+    freqToInt() : void
+    {
+        if (this.freqDomain instanceof Uint8Array)
+        {
+            this.freqDomain = new Uint8Array(this.analyzerNode.frequencyBinCount);
+        }
+    }
+
+    timeToFloat() : void
+    {
+        if (!(this.timeDomain instanceof Float32Array))
+        {
+            this.timeDomain = new Float32Array(this.analyzerNode.frequencyBinCount);
+        }
+    }
+
+    /* Converts FFT Time domain From Float32Array to UInt8Array */
+    timeToInt() : void
+    {
+        if (!(this.timeDomain instanceof Uint8Array))
+        {
+            this.timeDomain = new Uint8Array(this.analyzerNode.frequencyBinCount);
+        }
+    }
 }
 
-// helper methods to convert type from float (dB) to int (0-255)
-function freqToFloat(fft : FFT)
-{
-    if (fft.freqDomain instanceof Float32Array)
-    {
-        fft.freqDomain = new Float32Array(fft.analyzerNode.frequencyBinCount);
-    }
-}
-function freqToInt(fft : FFT)
-{
-    if (fft.freqDomain instanceof Uint8Array)
-    {
-        fft.freqDomain = new Uint8Array(fft.analyzerNode.frequencyBinCount);
-    }
-}
-function timeToFloat(fft : FFT)
-{
-    if (!(fft.timeDomain instanceof Float32Array))
-    {
-        fft.timeDomain = new Float32Array(fft.analyzerNode.frequencyBinCount);
-    }
-}
-
-/* Converts FFT Time domain From Float32Array to UInt8Array */
-function timeToInt(fft : FFT)
-{
-    if (!(fft.timeDomain instanceof Uint8Array))
-    {
-        fft.timeDomain = new Uint8Array(fft.analyzerNode.frequencyBinCount);
-    }
-}
-
-export default FFT;
+export { FFT };
