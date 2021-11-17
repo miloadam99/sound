@@ -42,10 +42,11 @@ interface FrequencyBand {
  *                            16 and 1024. Defaults to 1024.
  *  @example
  */
-import { isSafari } from './supported';
+import { isSafari } from './utils/supported';
 
 export function map(num: number, inMin: number, inMax: number, outMin: number, outMax: number): number
 {
+    // eslint-disable-next-line no-mixed-operators
     return (num - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 }
 

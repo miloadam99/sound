@@ -19,6 +19,7 @@ export * from './Filterable';
 export * from './interfaces';
 export * from './filters/Filter';
 export * from './SoundSprite';
+export * from './FFT';
 export {
     sound,
     htmlaudio,

@@ -28,7 +28,7 @@
         "meta": {
             "title": "PixiJS Sound API Documentation",
             "description": "Documentation for PixiJS Sound library",
-            "keyword": "docs, documentation, pixi, pixijs, webaudio, html5, audio, javascript, jsdoc"
+            "keyword": "docs, documentation, pixi, pixijs, webaudio, fft, feature extraction, html5, audio, javascript, jsdoc"
         }
     },
     "markdown": {

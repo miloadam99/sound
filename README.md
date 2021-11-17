@@ -1,4 +1,5 @@
-# PixiJS Sound
+# PixiJS Sound - Extended With FFT
+
 
 WebAudio API playback library, with filters. Modern audio playback for modern browsers. 
 
@@ -10,6 +11,8 @@ WebAudio API playback library, with filters. Modern audio playback for modern br
 * Independent volume control
 * Support blocking or layered sounds (multiple instances)
 * Support for `PIXI.Loader` system
+* FFT Amplitude & Waveform Analysis | @miloadam99
+* Peak Detection (Coming Soon!!) | @miloadam99
 * Dynamic filters:
     * ReverbFilter
     * DistortionFilter
