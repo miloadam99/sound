@@ -6,6 +6,7 @@ import htmlaudio from './htmlaudio';
 import filters from './filters';
 import webaudio from './webaudio';
 import utils from './utils';
+import FFT from './FFT';
 
 const sound = setInstance(new SoundLibrary());
 
@@ -23,7 +24,9 @@ export * from './FFT';
 export {
     sound,
     htmlaudio,
+    FFT,
     filters,
     webaudio,
+
     utils,
 };
