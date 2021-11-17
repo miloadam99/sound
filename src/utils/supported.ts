@@ -67,11 +67,18 @@ function validateFormats(typeOverrides?: {[key: string]: string}): void
     Object.assign(supported, formats);
 }
 
+// TODO
+function isSafari(): boolean
+{
+    return false;
+}
+
 // initialize supported
 validateFormats();
 
 export {
     validateFormats,
     supported,
-    extensions
+    extensions,
+    isSafari
 };
