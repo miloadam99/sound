@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../beatzip/.idea/beatzip.iml" filepath="$PROJECT_DIR$/../beatzip/.idea/beatzip.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/sound.iml" filepath="$PROJECT_DIR$/.idea/sound.iml" />
     </modules>
   </component>

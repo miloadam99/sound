@@ -1,4 +1,4 @@
-import { WebAudioInstance } from './webaudio/WebAudioInstance';
+import { IMedia } from './interfaces';
 
 interface FrequencyBand {
     low: number;
@@ -44,7 +44,7 @@ interface FrequencyBand {
  *                            16 and 1024. Defaults to 1024.
  *  @example
  */
-import { isSafari } from './utils/supported';
+import { WebAudioContext } from './webaudio/WebAudioContext';
 
 export function map(num: number, inMin: number, inMax: number, outMin: number, outMax: number): number
 {
@@ -56,8 +56,8 @@ class FFT
 {
     analyzerNode : AnalyserNode;
 
-    freqDomain : Uint8Array | Float32Array;
-    timeDomain : Uint8Array | Float32Array;
+    freqDomain : Uint8Array;
+    timeDomain : Uint8Array;
 
     bass = [20, 140];
     lowMid = [140, 400];
@@ -65,15 +65,25 @@ class FFT
     highMid = [2600, 5200];
     treble = [5200, 14000];
 
-    constructor(smoothing : number, bins : number, source: WebAudioInstance)
+    constructor(smoothing : number, bins : number, media: IMedia)
     {
-        this.analyzerNode = source._media.context.audioContext.createAnalyser();
+        try
+        {
+            const wMediaContext : WebAudioContext = media.context as WebAudioContext;
 
-        this.smoothing = smoothing;
-        this.bins = bins || 1024;
+            this.analyzerNode = wMediaContext.analyser;
 
-        this.freqDomain = new Uint8Array(this.analyzerNode.frequencyBinCount);
-        this.timeDomain = new Uint8Array(this.analyzerNode.frequencyBinCount);
+            this.smoothing = smoothing;
+            this.bins = bins || 1024;
+
+            this.freqDomain = new Uint8Array(this.analyzerNode.frequencyBinCount);
+            this.timeDomain = new Uint8Array(this.analyzerNode.frequencyBinCount);
+        }
+        catch (e)
+        {
+            console.error(e);
+            throw new Error('Couldn\'t initialize FFT.');
+        }
     }
 
     get bins() : number
@@ -117,18 +127,9 @@ class FFT
     {
         const normalArray : number[] = [];
 
-        if (!isSafari()) // getFloatFrequencyData doesnt work in Safari as of 5/2015
-        {
-            // eslint-disable-next-line @typescript-eslint/no-use-before-define
-            this.timeToFloat();
-            this.analyzerNode.getFloatTimeDomainData(this.timeDomain as Float32Array);
-
-            return this.timeDomain as Uint8Array;
-        }
-
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        this.timeToInt();
-        this.analyzerNode.getByteTimeDomainData(this.timeDomain as Uint8Array);
+        // this.timeToInt();
+        this.analyzerNode.getByteTimeDomainData(this.timeDomain);
         for (let j = 0; j < this.timeDomain.length; j++)
         {
             const scaled = map(this.timeDomain[j], 0, 255, -1, 1);
@@ -150,13 +151,7 @@ class FFT
      *
      *  @method analyze
      *  @for FFT
-     *  @param {Number} [bins]    Must be a power of two between
-     *                             16 and 1024. Defaults to 1024.
-     *  @param {Number} [scale]    If "dB," returns decibel
-     *                             float measurements between
-     *                             -140 and 0 (max).
-     *                             Otherwise returns integers from 0-255.
-     *  @return {Number[]} spectrum    Array of energy (amplitude/volume)
+     *  @return {Array} spectrum    Array of energy (amplitude/volume)
      *                              values across the frequency spectrum.
      *                              Lowest energy (silence) = 0, highest
      *                              possible is 255.
@@ -164,43 +159,42 @@ class FFT
     analyze() : number[]
     {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        this.freqToInt();
-        this.analyzerNode.getByteFrequencyData(this.freqDomain as Uint8Array);
+        this.analyzerNode.getByteFrequencyData(this.freqDomain);
         const normalArray = Array.from(this.freqDomain);
 
         return normalArray;
     }
 
-    /**
-     *  Returns an array of amplitude values (between 0 and 255)
-     *  across the frequency spectrum. Length is equal to FFT bins
-     *  (1024 by default). The array indices correspond to frequencies
-     *  (i.e. pitches), from the lowest to the highest that humans can
-     *  hear. Each value represents amplitude at that slice of the
-     *  frequency spectrum. Must be called prior to using
-     *  <code>getEnergy()</code>.
-     *
-     *  @method analyze
-     *  @for FFT
-     *  @param {Number} [bins]    Must be a power of two between
-     *                             16 and 1024. Defaults to 1024.
-     *  @param {Number} [scale]    If "dB," returns decibel
-     *                             float measurements between
-     *                             -140 and 0 (max).
-     *                             Otherwise returns integers from 0-255.
-     *  @return {Float32Array} spectrum    Array of energy (amplitude/volume)
-     *                              values across the frequency spectrum.
-     *                              Lowest energy (silence) = 0, highest
-     *                              possible is 255.
-     */
-    get analyzeFloat32() : Float32Array
-    {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        this.freqToFloat();
-        this.analyzerNode.getFloatFrequencyData(this.freqDomain as Float32Array);
-
-        return this.freqDomain as Float32Array;
-    }
+    // /**
+    //  *  Returns an array of amplitude values (between 0 and 255)
+    //  *  across the frequency spectrum. Length is equal to FFT bins
+    //  *  (1024 by default). The array indices correspond to frequencies
+    //  *  (i.e. pitches), from the lowest to the highest that humans can
+    //  *  hear. Each value represents amplitude at that slice of the
+    //  *  frequency spectrum. Must be called prior to using
+    //  *  <code>getEnergy()</code>.
+    //  *
+    //  *  @method analyze
+    //  *  @for FFT
+    //  *  @param {Number} [bins]    Must be a power of two between
+    //  *                             16 and 1024. Defaults to 1024.
+    //  *  @param {Number} [scale]    If "dB," returns decibel
+    //  *                             float measurements between
+    //  *                             -140 and 0 (max).
+    //  *                             Otherwise returns integers from 0-255.
+    //  *  @return {Float32Array} spectrum    Array of energy (amplitude/volume)
+    //  *                              values across the frequency spectrum.
+    //  *                              Lowest energy (silence) = 0, highest
+    //  *                              possible is 255.
+    //  */
+    // analyzeFloat32() : Float32Array
+    // {
+    //     // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    //     this.freqToFloat();
+    //     this.analyzerNode.getFloatFrequencyData(this.freqDomain as Float32Array);
+    //
+    //     return this.freqDomain as Float32Array;
+    // }
 
     /**
      *  Returns the amount of energy (volume) at a specific
@@ -264,6 +258,7 @@ class FFT
 
         if (typeof frequency1 !== 'number')
         {
+            console.log(frequency1);
             throw new Error('invalid input for getEnergy()');
         }
         else if (!frequency2)
@@ -273,7 +268,7 @@ class FFT
 
             return this.freqDomain[index];
         }
-        else if (frequency1 && frequency2)
+        else
         {
         // if two parameters:
         // if second is higher than first
@@ -304,10 +299,6 @@ class FFT
             const toReturn = total / numFrequencies;
 
             return toReturn;
-        }
-        else
-        {
-            throw 'invalid input for getEnergy()';
         }
     }
 
@@ -534,39 +525,39 @@ class FFT
         return octaveBands;
     }
 
-    // helper methods to convert type from float (dB) to int (0-255)
-    freqToFloat() : void
-    {
-        if (this.freqDomain instanceof Float32Array)
-        {
-            this.freqDomain = new Float32Array(this.analyzerNode.frequencyBinCount);
-        }
-    }
-
-    freqToInt() : void
-    {
-        if (this.freqDomain instanceof Uint8Array)
-        {
-            this.freqDomain = new Uint8Array(this.analyzerNode.frequencyBinCount);
-        }
-    }
-
-    timeToFloat() : void
-    {
-        if (!(this.timeDomain instanceof Float32Array))
-        {
-            this.timeDomain = new Float32Array(this.analyzerNode.frequencyBinCount);
-        }
-    }
-
-    /* Converts FFT Time domain From Float32Array to UInt8Array */
-    timeToInt() : void
-    {
-        if (!(this.timeDomain instanceof Uint8Array))
-        {
-            this.timeDomain = new Uint8Array(this.analyzerNode.frequencyBinCount);
-        }
-    }
+    // // helper methods to convert type from float (dB) to int (0-255)
+    // freqToFloat() : void
+    // {
+    //     if (!(this.freqDomain instanceof Float32Array))
+    //     {
+    //         this.freqDomain = new Float32Array(this.analyzerNode.frequencyBinCount);
+    //     }
+    // }
+    //
+    // freqToInt() : void
+    // {
+    //     if (!(this.freqDomain instanceof Uint8Array))
+    //     {
+    //         this.freqDomain = new Uint8Array(this.analyzerNode.frequencyBinCount);
+    //     }
+    // }
+    //
+    // timeToFloat() : void
+    // {
+    //     if (!(this.timeDomain instanceof Float32Array))
+    //     {
+    //         this.timeDomain = new Float32Array(this.analyzerNode.frequencyBinCount);
+    //     }
+    // }
+    //
+    // /* Converts FFT Time domain From Float32Array to UInt8Array */
+    // timeToInt() : void
+    // {
+    //     if (!(this.timeDomain instanceof Uint8Array))
+    //     {
+    //         this.timeDomain = new Uint8Array(this.analyzerNode.frequencyBinCount);
+    //     }
+    // }
 }
 
 export { FFT };

@@ -71,8 +71,8 @@ class WebAudioContext extends Filterable implements IMediaContext
         const analyser: AnalyserNode = ctx.createAnalyser();
 
         // setup the end of the node chain
-        analyser.connect(compressor);
         compressor.connect(ctx.destination);
+        analyser.connect(compressor);
 
         super(analyser, compressor);
 
